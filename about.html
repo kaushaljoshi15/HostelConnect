@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About - HostelConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: 0, transform: 'translateY(30px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            scaleIn: {
+              '0%': { transform: 'scale(0.95)', opacity: 0 },
+              '100%': { transform: 'scale(1)', opacity: 1 },
+            },
+          },
+          animation: {
+            fadeInUp: 'fadeInUp 0.8s ease-out forwards',
+            scaleIn: 'scaleIn 0.6s ease-out forwards',
+          }
+        }
+      }
+    };
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxCG9sUtilWw0R55J4Sv6S0-jvFgFoxHQ",
+      authDomain: "hostelconnect-9b797.firebaseapp.com",
+      databaseURL: "https://hostelconnect-9b797-default-rtdb.firebaseio.com",
+      projectId: "hostelconnect-9b797",
+      storageBucket: "hostelconnect-9b797.firebasestorage.app",
+      messagingSenderId: "20703075895",
+      appId: "1:20703075895:web:99ff5ecf72a985ecd9a9b2"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+  <style>
+    /* Navigation underline hover */
+    .nav-item {
+      position: relative;
+      display: inline-block;
+      color: #4B5563;
+      transition: color 0.3s ease-in-out;
+    }
+
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background-color: #2563eb;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .nav-item:hover {
+      color: #2563eb;
+    }
+
+    .nav-item:hover::after {
+      width: 100%;
+    }
+
+    /* Hamburger Lines */
+    .line {
+      width: 24px;
+      height: 2px;
+      background-color: #4B5563;
+      margin: 5px auto;
+      transition: all 0.4s ease;
+    }
+
+    /* Transform hamburger into cross */
+    .open .line1 {
+      transform: rotate(45deg) translate(5px, 5px);
+      background-color: #000000;
+    }
+
+    .open .line2 {
+      opacity: 0;
+    }
+
+    .open .line3 {
+      transform: rotate(-45deg) translate(5px, -5px);
+      background-color: #000;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+      <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:scale-105">
+        <img src="logo2.jpg" alt="HostelConnect Logo" class="w-8 h-8 rounded-full shadow-md">
+        <span>HostelConnect</span>
+      </a>
+
+      <!-- Hamburger Button -->
+      <div class="md:hidden" id="menuButton">
+        <div class="line line1"></div>
+        <div class="line line2"></div>
+        <div class="line line3"></div>
+      </div>
+
+      <!-- Desktop Nav Links -->
+      <div class="hidden md:flex space-x-6">
+        <a href="index.html" class="nav-item">Home</a>
+        <a href="about.html" class="nav-item">About</a>
+        <a href="feedback.html" class="nav-item">Feedback</a>
+        <a href="fees.html" class="nav-item">Fees</a>
+        <a href="gallery.html" class="nav-item">Gallery</a>
+        <a href="login.html" class="nav-item text-blue-600 font-semibold" id="authLink">Login</a>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden flex-col px-4 pb-4 md:hidden space-y-2 bg-white">
+      <a href="index.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Home</a>
+      <a href="about.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">About</a>
+      <a href="feedback.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Feedback</a>
+      <a href="fees.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Fees</a>
+      <a href="gallery.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Gallery</a>
+      <a href="login.html" class="block py-2 px-3 rounded text-blue-600 font-semibold hover:bg-blue-100 transition" id="mobileAuthLink">Login</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-10">
+    <section class="bg-white shadow-lg rounded-xl p-8 animate-fadeInUp">
+      <h2 class="text-3xl font-bold text-indigo-700 mb-6">About HostelConnect</h2>
+      <p class="text-lg text-gray-600 mb-8">Empowering students and streamlining operations at GTU Boys Hostel through smart digital solutions.</p>
+
+      <!-- Mission -->
+      <div class="mb-10 animate-fadeInUp">
+        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">Our Mission</h3>
+        <p class="text-gray-700 leading-relaxed">
+          We aim to digitize hostel processes at <strong>GTU Boys Hostel</strong>, enabling smoother operations and enhanced student engagement.
+        </p>
+      </div>
+
+      <!-- GTU Hostel Facilities -->
+      <div class="mb-12 animate-fadeInUp">
+        <h3 class="text-2xl font-semibold text-indigo-600 mb-4">GTU Boys Hostel Facilities</h3>
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Replace with real hostel photos -->
+          <div class="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition transform hover:scale-105">
+            <img src="gtu hostel.jpeg" alt="Hostel Building">
+            <div class="p-4">
+              <h4 class="font-bold text-indigo-700 mb-2">Modern Infrastructure</h4>
+              <p>Spacious rooms, secure access, and a peaceful environment.</p>
+            </div>
+          </div>
+          <div class="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition transform hover:scale-105">
+            <img src="https://source.unsplash.com/400x250/?canteen" alt="Canteen">
+            <div class="p-4">
+              <h4 class="font-bold text-indigo-700 mb-2">Healthy Canteen</h4>
+              <p>Nutritious food options served hygienically throughout the day.</p>
+            </div>
+          </div>
+          <div class="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition transform hover:scale-105">
+            <img src="gtu gym.jpg" alt="Sports Ground">
+            <div class="p-4">
+              <h4 class="font-bold text-indigo-700 mb-2">Sports & Fitness</h4>
+              <p>Gym, basketball court, and green fields for holistic development.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Why Choose Us -->
+      <div class="mb-10 animate-scaleIn">
+        <h3 class="text-2xl font-semibold text-indigo-600 mb-4">Why Choose HostelConnect?</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-indigo-50 p-4 rounded-lg shadow hover:shadow-md transition">
+            <h4 class="font-bold text-indigo-700 mb-1">User-Friendly UI</h4>
+            <p>Intuitive interface accessible by everyone, anytime.</p>
+          </div>
+          <div class="bg-indigo-50 p-4 rounded-lg shadow hover:shadow-md transition">
+            <h4 class="font-bold text-indigo-700 mb-1">Real-Time Sync</h4>
+            <p>Live updates on announcements, fees, and room changes.</p>
+          </div>
+          <div class="bg-indigo-50 p-4 rounded-lg shadow hover:shadow-md transition">
+            <h4 class="font-bold text-indigo-700 mb-1">Secure Login</h4>
+            <p>Firebase Auth integration for safe and verified access.</p>
+          </div>
+          <div class="bg-indigo-50 p-4 rounded-lg shadow hover:shadow-md transition">
+            <h4 class="font-bold text-indigo-700 mb-1">24/7 Availability</h4>
+            <p>Access your dashboard anytime from any device.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="animate-fadeInUp">
+        <h3 class="text-2xl font-semibold text-indigo-600 mb-2">Contact Information</h3>
+        <div class="bg-gray-100 p-4 rounded-lg space-y-2 shadow-sm">
+          <p><strong>Email:</strong> support@hostelconnect.com</p>
+          <p><strong>Phone:</strong> +91 98765 43210</p>
+          <p><strong>Address:</strong> GTU Boys Hostel, Chandkheda, Ahmedabad, Gujarat - 382424</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-4">
+    <div class="max-w-7xl mx-auto text-center text-white text-sm">
+      <p>&copy; 2024 HostelConnect. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const authLink = document.getElementById('authLink');
+    const mobileAuthLink = document.getElementById('mobileAuthLink');
+
+    menuButton.addEventListener('click', () => {
+      menuButton.classList.toggle('open');
+      mobileMenu.classList.toggle('hidden');
+      mobileMenu.classList.toggle('flex');
+    });
+
+    function setLogoutLinks() {
+      if (authLink) {
+        authLink.textContent = 'Logout';
+        authLink.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => {
+            window.location.href = 'login.html';
+          });
+        };
+        authLink.href = '#';
+      }
+      if (mobileAuthLink) {
+        mobileAuthLink.textContent = 'Logout';
+        mobileAuthLink.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => {
+            window.location.href = 'login.html';
+          });
+        };
+        mobileAuthLink.href = '#';
+      }
+    }
+
+    function setLoginLinks() {
+      if (authLink) {
+        authLink.textContent = 'Login';
+        authLink.onclick = null;
+        authLink.href = 'login.html';
+      }
+      if (mobileAuthLink) {
+        mobileAuthLink.textContent = 'Login';
+        mobileAuthLink.onclick = null;
+        mobileAuthLink.href = 'login.html';
+      }
+    }
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setLogoutLinks();
+      } else {
+        setLoginLinks();
+      }
+    });
+  </script>
+</body>
+</html>

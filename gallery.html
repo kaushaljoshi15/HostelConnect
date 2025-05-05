@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - HostelConnect</title>
+    <style>
+        /* Navigation underline hover */
+        .nav-item {
+          position: relative;
+          display: inline-block;
+          color: #4B5563;
+          transition: color 0.3s ease-in-out;
+        }
+      
+        .nav-item::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          height: 2px;
+          width: 0%;
+          background-color: #2563eb;
+          transition: width 0.3s ease-in-out;
+        }
+      
+        .nav-item:hover {
+          color: #2563eb;
+        }
+      
+        .nav-item:hover::after {
+          width: 100%;
+        }
+      
+        /* Hamburger Lines */
+        .line {
+          width: 24px;
+          height: 2px;
+          background-color: #4B5563;
+          margin: 5px auto;
+          transition: all 0.4s ease;
+        }
+      
+        /* Transform hamburger into cross */
+        .open .line1 {
+          transform: rotate(45deg) translate(5px, 5px);
+          background-color: #000000;
+        }
+      
+        .open .line2 {
+          opacity: 0;
+        }
+      
+        .open .line3 {
+          transform: rotate(-45deg) translate(5px, -5px);
+          background-color: #000;
+        }
+      </style>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4a90e2',
+                        secondary: '#2c3e50',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDxCG9sUtilWw0R55J4Sv6S0-jvFgFoxHQ",
+          authDomain: "hostelconnect-9b797.firebaseapp.com",
+          databaseURL: "https://hostelconnect-9b797-default-rtdb.firebaseio.com",
+          projectId: "hostelconnect-9b797",
+          storageBucket: "hostelconnect-9b797.firebasestorage.app",
+          messagingSenderId: "20703075895",
+          appId: "1:20703075895:web:99ff5ecf72a985ecd9a9b2"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:scale-105">
+          <img src="logo2.jpg" alt="HostelConnect Logo" class="w-8 h-8 rounded-full shadow-md">
+          <span>HostelConnect</span>
+        </a>
+
+        <!-- Hamburger Button -->
+        <div class="md:hidden" id="menuButton">
+          <div class="line line1"></div>
+          <div class="line line2"></div>
+          <div class="line line3"></div>
+        </div>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden md:flex space-x-6">
+          <a href="index.html" class="nav-item">Home</a>
+          <a href="about.html" class="nav-item">About</a>
+          <a href="feedback.html" class="nav-item">Feedback</a>
+          <a href="fees.html" class="nav-item">Fees</a>
+          <a href="gallery.html" class="nav-item">Gallery</a>
+          <a href="login.html" id="authLink" class="nav-item text-blue-600 font-semibold">Login</a>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobileMenu" class="hidden flex-col px-4 pb-4 md:hidden space-y-2 bg-white">
+        <a href="index.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Home</a>
+        <a href="about.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">About</a>
+        <a href="feedback.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Feedback</a>
+        <a href="fees.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Fees</a>
+        <a href="gallery.html" class="block py-2 px-3 rounded hover:bg-blue-100 hover:text-blue-600 transition">Gallery</a>
+        <a href="login.html" id="mobileAuthLink" class="block py-2 px-3 rounded text-blue-600 font-semibold hover:bg-blue-100 transition">Login</a>
+      </div>
+    </nav>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 class="text-3xl font-bold text-secondary text-center mb-8">Hostel Gallery</h2>
+
+        <!-- Admin Image Upload Form -->
+        <div id="uploadSection" class="hidden bg-white p-6 rounded-xl shadow-lg mb-12">
+            <h3 class="text-2xl font-semibold mb-6">Upload New Image</h3>
+            <form id="uploadForm" class="space-y-4">
+                <div class="form-group">
+                    <label for="imageTitle" class="text-lg font-medium">Image Title</label>
+                    <input type="text" id="imageTitle" class="w-full p-3 border rounded-lg" required>
+                </div>
+                <div class="form-group">
+                    <label for="imageDescription" class="text-lg font-medium">Description</label>
+                    <textarea id="imageDescription" rows="3" class="w-full p-3 border rounded-lg" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imageFile" class="text-lg font-medium">Select Image</label>
+                    <input type="file" id="imageFile" accept="image/*" class="w-full p-3 border rounded-lg" required>
+                </div>
+                <select id="category" class="w-full p-3 border rounded-lg" required>
+                    <option value="hostel_facilities">Hostel Facilities</option>
+                    <option value="sports_programs">Sports Programs</option>
+                    <option value="festival_celebrations">Festival Celebrations</option>
+                </select>                
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition transform hover:scale-105">
+                    Upload Image
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="hidden text-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Loading images...</p>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div id="galleryGrid" class="gallery-grid">
+          <!-- Images will be dynamically added here -->
+        </div>
+
+        <!-- Image Modal -->
+        <div id="imageModal" class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
+            <span class="close-modal absolute top-4 right-4 text-white text-3xl cursor-pointer">&times;</span>
+            <div class="bg-white p-6 rounded-lg max-w-lg">
+                <img id="modalImage" src="" alt="Modal Image" class="w-full h-auto rounded-lg mb-4">
+                <div id="modalCaption" class="text-gray-700 text-lg font-semibold"></div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-4">
+      <div class="max-w-7xl mx-auto text-center text-white text-sm">
+        <p>&copy; 2024 HostelConnect. All rights reserved.</p>
+      </div>
+    </footer>
+    <!-- JS Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/gallery.js"></script>
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const uploadSection = document.getElementById('uploadSection');
+        const uploadForm = document.getElementById('uploadForm');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const authLink = document.getElementById('authLink');
+        const mobileAuthLink = document.getElementById('mobileAuthLink');
+
+        // Check user role and update UI
+        function checkUserRole() {
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        // User is signed in
+                        const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                        const userData = userDoc.data();
+
+                        // Update auth link
+                        authLink.textContent = 'Logout';
+                        authLink.onclick = () => {
+                            firebase.auth().signOut();
+                            window.location.href = 'login.html';
+                        };
+
+                        console.log('User role:', userData.role); // Debug log
+
+                        // Show upload section only for admin
+                        if (userData.role === 'admin') {
+                            uploadSection.classList.remove('hidden');
+                            console.log('Showing upload section for admin'); // Debug log
+                        } else {
+                            uploadSection.classList.add('hidden');
+                            console.log('Hiding upload section for non-admin'); // Debug log
+                        }
+                    } catch (error) {
+                        console.error('Error checking user role:', error);
+                    }
+                } else {
+                    // User is signed out
+                    authLink.textContent = 'Login';
+                    authLink.onclick = () => {
+                        window.location.href = 'login.html';
+                    };
+                    uploadSection.classList.add('hidden');
+                    console.log('User is signed out, hiding upload section'); // Debug log
+                }
+            });
+        }
+
+        // Handle image upload
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const imageFile = document.getElementById('imageFile').files[0];
+            const imageTitle = document.getElementById('imageTitle').value;
+            const imageDescription = document.getElementById('imageDescription').value;
+            const category = document.getElementById('category').value;
+
+            if (!imageFile) {
+                alert('Please select an image to upload');
+                return;
+            }
+
+            // Check file size (max 5MB)
+            if (imageFile.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB');
+                return;
+            }
+
+            // Check file type
+            if (!imageFile.type.startsWith('image/')) {
+                alert('Please select a valid image file');
+                return;
+            }
+
+            loadingIndicator.classList.remove('hidden');
+            const submitButton = uploadForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Uploading...';
+
+            try {
+                // Create a unique filename
+                const timestamp = new Date().getTime();
+                const fileExtension = imageFile.name.split('.').pop();
+                const uniqueFilename = `${timestamp}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
+                
+                // Create storage reference
+                const storageRef = firebase.storage().ref();
+                const imageRef = storageRef.child(`gallery/${uniqueFilename}`);
+
+                // Create upload task
+                const uploadTask = imageRef.put(imageFile, {
+                    contentType: imageFile.type
+                });
+
+                // Monitor upload progress
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Handle progress
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        submitButton.textContent = `Uploading... ${Math.round(progress)}%`;
+                    },
+                    (error) => {
+                        // Handle error
+                        console.error('Upload error:', error);
+                        alert(`Error uploading image: ${error.message}`);
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Upload Image';
+                        loadingIndicator.classList.add('hidden');
+                    },
+                    async () => {
+                        try {
+                            // Upload completed successfully
+                            const imageUrl = await uploadTask.snapshot.ref.getDownloadURL();
+
+                            // Save image metadata to Firestore
+                            await firebase.firestore().collection('gallery').add({
+                                url: imageUrl,
+                                title: imageTitle,
+                                description: imageDescription,
+                                category: category,
+                                filename: uniqueFilename,
+                                originalFilename: imageFile.name,
+                                size: imageFile.size,
+                                type: imageFile.type,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                                uploadedBy: firebase.auth().currentUser.uid
+                            });
+
+                            alert('Image uploaded successfully!');
+                            uploadForm.reset();
+                        } catch (error) {
+                            console.error('Firestore error:', error);
+                            alert(`Error saving image data: ${error.message}`);
+                        } finally {
+                            submitButton.disabled = false;
+                            submitButton.textContent = 'Upload Image';
+                            loadingIndicator.classList.add('hidden');
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error('Error starting upload:', error);
+                alert(`Error starting upload: ${error.message}`);
+                submitButton.disabled = false;
+                submitButton.textContent = 'Upload Image';
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+
+        // Load gallery images with error handling and retry
+        function loadGalleryImages() {
+            loadingIndicator.classList.remove('hidden');
+            let retryCount = 0;
+            const maxRetries = 3;
+
+            function tryLoadImages() {
+                firebase.firestore().collection('gallery')
+                    .orderBy('timestamp', 'desc')
+                    .get()
+                    .then((snapshot) => {
+                        galleryGrid.innerHTML = '';
+                        
+                        snapshot.forEach((doc) => {
+                            const data = doc.data();
+                            const div = document.createElement('div');
+                            div.className = 'gallery-item bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300';
+                            div.innerHTML = `
+                                <img src="${data.url}" 
+                                    alt="${data.title || data.filename}" 
+                                    class="w-full h-64 object-cover rounded-lg mb-4"
+                                    onerror="this.onerror=null; this.src='placeholder.jpg';">
+                                ${data.title ? `<h3 class="text-lg font-semibold mb-2">${data.title}</h3>` : ''}
+                                ${data.description ? `<p class="text-gray-600 mb-2">${data.description}</p>` : ''}
+                                <p class="text-sm text-gray-500">
+                                    ${data.category ? data.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : ''}
+                                </p>
+                            `;
+                            galleryGrid.appendChild(div);
+                        });
+
+                        loadingIndicator.classList.add('hidden');
+                    })
+                    .catch((error) => {
+                        console.error('Error loading gallery:', error);
+                        if (retryCount < maxRetries) {
+                            retryCount++;
+                            console.log(`Retrying... (${retryCount}/${maxRetries})`);
+                            setTimeout(tryLoadImages, 1000 * retryCount);
+                        } else {
+                            alert('Error loading gallery. Please refresh the page.');
+                            loadingIndicator.classList.add('hidden');
+                        }
+                    });
+            }
+
+            tryLoadImages();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUserRole();
+            loadGalleryImages();
+        });
+
+        function setLogoutLinks() {
+            if (authLink) {
+                authLink.textContent = 'Logout';
+                authLink.onclick = (e) => {
+                    e.preventDefault();
+                    firebase.auth().signOut().then(() => {
+                        window.location.href = 'login.html';
+                    });
+                };
+                authLink.href = '#';
+            }
+            if (mobileAuthLink) {
+                mobileAuthLink.textContent = 'Logout';
+                mobileAuthLink.onclick = (e) => {
+                    e.preventDefault();
+                    firebase.auth().signOut().then(() => {
+                        window.location.href = 'login.html';
+                    });
+                };
+                mobileAuthLink.href = '#';
+            }
+        }
+
+        function setLoginLinks() {
+            if (authLink) {
+                authLink.textContent = 'Login';
+                authLink.onclick = null;
+                authLink.href = 'login.html';
+            }
+            if (mobileAuthLink) {
+                mobileAuthLink.textContent = 'Login';
+                mobileAuthLink.onclick = null;
+                mobileAuthLink.href = 'login.html';
+            }
+        }
+
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                setLogoutLinks();
+                // ... your admin check and upload section logic ...
+            } else {
+                setLoginLinks();
+                // ... your upload section hide logic ...
+            }
+        });
+
+        // Handle mobile menu
+        menuButton.addEventListener('click', () => {
+          menuButton.classList.toggle('open');
+          mobileMenu.classList.toggle('hidden');
+          mobileMenu.classList.toggle('flex');
+        });
+    </script>
+
+    <style>
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .gallery-item img {
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+    </style>
+</body>
+</html>

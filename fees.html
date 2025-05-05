@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fees Payment - HostelConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    .nav-item {
+      position: relative;
+      display: inline-block;
+      color: #4B5563;
+      transition: color 0.3s ease-in-out;
+    }
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background-color: #2563eb;
+      transition: width 0.3s ease-in-out;
+    }
+    .nav-item:hover {
+      color: #2563eb;
+    }
+    .nav-item:hover::after {
+      width: 100%;
+    }
+    .line {
+      width: 24px;
+      height: 2px;
+      background-color: #4B5563;
+      margin: 5px auto;
+      transition: all 0.4s ease;
+    }
+    .open .line1 { transform: rotate(45deg) translate(5px, 5px); }
+    .open .line2 { opacity: 0; }
+    .open .line3 { transform: rotate(-45deg) translate(5px, -5px); }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<!-- Navbar -->
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+    <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600">
+      <img src="logo2.jpg" alt="HostelConnect Logo" class="w-8 h-8 rounded-full shadow">
+      <span>HostelConnect</span>
+    </a>
+    <div class="md:hidden" id="menuButton">
+      <div class="line line1"></div>
+      <div class="line line2"></div>
+      <div class="line line3"></div>
+    </div>
+    <div class="hidden md:flex space-x-6">
+      <a href="index.html" class="nav-item">Home</a>
+      <a href="about.html" class="nav-item">About</a>
+      <a href="feedback.html" class="nav-item">Feedback</a>
+      <a href="fees.html" class="nav-item">Fees</a>
+      <a href="gallery.html" class="nav-item">Gallery</a>
+      <a href="login.html" class="nav-item text-blue-600 font-semibold" id="authLink">Login</a>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden flex-col px-4 pb-4 md:hidden space-y-2 bg-white">
+    <a href="index.html" class="block py-2 px-3 hover:text-blue-600">Home</a>
+    <a href="about.html" class="block py-2 px-3 hover:text-blue-600">About</a>
+    <a href="feedback.html" class="block py-2 px-3 hover:text-blue-600">Feedback</a>
+    <a href="fees.html" class="block py-2 px-3 text-blue-600 font-semibold">Fees</a>
+    <a href="gallery.html" class="block py-2 px-3 hover:text-blue-600">Gallery</a>
+    <a href="login.html" class="block py-2 px-3 hover:text-blue-600" id="mobileAuthLink">Login</a>
+  </div>
+</nav>
+
+<!-- Dropdown Selector -->
+<section class="max-w-xl mx-auto mt-14 px-4">
+  <div class="text-center mb-8">
+    <h2 class="text-3xl font-bold text-indigo-700">Select Fee Type</h2>
+    <p class="text-sm text-gray-500">Choose the type of fee you want to pay</p>
+  </div>
+  <div class="flex flex-col space-y-4 text-center">
+    <select id="feeTypeSelector" onchange="navigateForm()" class="text-lg border rounded-md p-3 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+      <option value="" selected disabled>Select Fee Type</option>
+      <option value="hostel">🏠 Hostel Fee</option>
+      <option value="gym">💪 Gym Fee</option>
+    </select>
+  </div>
+</section>
+
+<!-- Fee Forms -->
+<section id="hostelForm" class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md hidden transition-all duration-300">
+  <h3 class="text-2xl font-bold text-indigo-600 mb-4">Hostel Fee Payment</h3>
+  <div class="space-y-4">
+    <input type="text" id="hostelName" placeholder="Full Name" class="w-full px-4 py-2 border rounded-md" />
+    <input type="text" id="hostelEnroll" placeholder="Enrollment No." class="w-full px-4 py-2 border rounded-md" />
+    <input type="email" id="hostelEmail" placeholder="Email ID" class="w-full px-4 py-2 border rounded-md" />
+    <input type="number" id="hostelAmount" placeholder="Amount (INR)" class="w-full px-4 py-2 border rounded-md" />
+    <button onclick="payFee('Hostel', 'hostelName', 'hostelEnroll', 'hostelEmail', 'hostelAmount')" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">Pay Hostel Fee</button>
+  </div>
+</section>
+
+<section id="gymForm" class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md hidden transition-all duration-300">
+  <h3 class="text-2xl font-bold text-indigo-600 mb-4">Gym Fee Payment</h3>
+  <div class="space-y-4">
+    <input type="text" id="gymName" placeholder="Full Name" class="w-full px-4 py-2 border rounded-md" />
+    <input type="text" id="gymEnroll" placeholder="Enrollment No." class="w-full px-4 py-2 border rounded-md" />
+    <input type="email" id="gymEmail" placeholder="Email ID" class="w-full px-4 py-2 border rounded-md" />
+    <input type="number" id="gymAmount" placeholder="Amount (INR)" class="w-full px-4 py-2 border rounded-md" />
+    <button onclick="payFee('Gym', 'gymName', 'gymEnroll', 'gymEmail', 'gymAmount')" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">Pay Gym Fee</button>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white text-center py-4 text-sm mt-16">
+  &copy; 2024 HostelConnect. All rights reserved.
+</footer>
+
+<!-- Firebase scripts and config -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDxCG9sUtilWw0R55J4Sv6S0-jvFgFoxHQ",
+    authDomain: "hostelconnect-9b797.firebaseapp.com",
+    databaseURL: "https://hostelconnect-9b797-default-rtdb.firebaseio.com",
+    projectId: "hostelconnect-9b797",
+    storageBucket: "hostelconnect-9b797.firebasestorage.app",
+    messagingSenderId: "20703075895",
+    appId: "1:20703075895:web:99ff5ecf72a985ecd9a9b2"
+  };
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const menuButton = document.getElementById('menuButton');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const authLink = document.getElementById('authLink');
+  const mobileAuthLink = document.getElementById('mobileAuthLink');
+  menuButton.addEventListener('click', () => {
+    menuButton.classList.toggle('open');
+    mobileMenu.classList.toggle('hidden');
+    mobileMenu.classList.toggle('flex');
+  });
+
+  function setLogoutLinks() {
+    if (authLink) {
+      authLink.textContent = 'Logout';
+      authLink.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => {
+          window.location.href = 'login.html';
+        });
+      };
+      authLink.href = '#';
+    }
+    if (mobileAuthLink) {
+      mobileAuthLink.textContent = 'Logout';
+      mobileAuthLink.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => {
+          window.location.href = 'login.html';
+        });
+      };
+      mobileAuthLink.href = '#';
+    }
+  }
+
+  function setLoginLinks() {
+    if (authLink) {
+      authLink.textContent = 'Login';
+      authLink.onclick = null;
+      authLink.href = 'login.html';
+    }
+    if (mobileAuthLink) {
+      mobileAuthLink.textContent = 'Login';
+      mobileAuthLink.onclick = null;
+      mobileAuthLink.href = 'login.html';
+    }
+  }
+
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      setLogoutLinks();
+    } else {
+      setLoginLinks();
+    }
+  });
+
+  function navigateForm() {
+    const type = document.getElementById("feeTypeSelector").value;
+    document.getElementById("hostelForm").classList.add("hidden");
+    document.getElementById("gymForm").classList.add("hidden");
+
+    if (type === "hostel") {
+      document.getElementById("hostelForm").classList.remove("hidden");
+    } else if (type === "gym") {
+      document.getElementById("gymForm").classList.remove("hidden");
+    }
+  }
+
+  function payFee(feeType, nameId, enrollId, emailId, amountId) {
+    const name = document.getElementById(nameId).value.trim();
+    const enroll = document.getElementById(enrollId).value.trim();
+    const email = document.getElementById(emailId).value.trim();
+    const amount = parseInt(document.getElementById(amountId).value.trim());
+
+    if (!name || !enroll || !email || !amount) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const options = {
+      key: "rzp_test_1234567890abcdef",
+      amount: amount * 100,
+      currency: "INR",
+      name: "HostelConnect",
+      description: `${feeType} Fee Payment`,
+      handler: function () {
+        alert("✅ Payment Successful! Thank you.");
+      },
+      prefill: { name, email },
+      notes: {
+        enrollment: enroll,
+        feeType: feeType
+      }
+    };
+
+    const payment = new Razorpay(options);
+    payment.open();
+  }
+</script>
+
+</body>
+</html>

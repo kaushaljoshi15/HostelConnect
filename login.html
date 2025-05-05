@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="HostelConnectLogo.jpg">
+  <title>Login - HostelConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxCG9sUtilWw0R55J4Sv6S0-jvFgFoxHQ",
+      authDomain: "hostelconnect-9b797.firebaseapp.com",
+      databaseURL: "https://hostelconnect-9b797-default-rtdb.firebaseio.com",
+      projectId: "hostelconnect-9b797",
+      storageBucket: "hostelconnect-9b797.appspot.com",
+      messagingSenderId: "20703075895",
+      appId: "1:20703075895:web:99ff5ecf72a985ecd9a9b2"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  <style>
+    .nav-item {
+      position: relative;
+      color: #4B5563;
+      transition: color 0.3s, border-bottom 0.3s;
+    }
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background-color: #2563eb;
+      transition: width 0.3s;
+    }
+    .nav-item:hover {
+      color: #2563eb;
+    }
+    .nav-item:hover::after {
+      width: 100%;
+    }
+    .fade-in {
+      animation: fadeIn 1s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .bar {
+      width: 24px;
+      height: 2px;
+      background-color: #4B5563;
+      margin: 5px 0;
+      transition: all 0.4s ease;
+    }
+    .menu-open .bar1 {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .menu-open .bar2 {
+      opacity: 0;
+    }
+    .menu-open .bar3 {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 fade-in">
+
+<!-- Navbar -->
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600 hover:scale-105 transition-all duration-300">
+        <img src="logo2.jpg" alt="Logo" class="w-8 h-8 rounded-full">
+        <span>HostelConnect</span>
+      </a>
+
+      <!-- Hamburger -->
+      <div class="md:hidden">
+        <button id="menuToggle" class="focus:outline-none">
+          <div class="bar bar1"></div>
+          <div class="bar bar2"></div>
+          <div class="bar bar3"></div>
+        </button>
+      </div>
+
+      <!-- Desktop Menu -->
+      <div id="navLinks" class="hidden md:flex space-x-6">
+        <a href="index.html" class="nav-item">Home</a>
+        <a href="about.html" class="nav-item">About</a>
+        <a href="feedback.html" class="nav-item">Feedback</a>
+        <a href="fees.html" class="nav-item">Fees</a>
+        <a href="gallery.html" class="nav-item">Gallery</a>
+        <a href="login.html" id="loginLogoutBtn" class="nav-item text-blue-600 font-semibold">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="md:hidden px-4 pb-4 hidden flex-col space-y-2">
+    <a href="index.html" class="block py-2 px-3 text-gray-700 hover:text-blue-600 hover:bg-blue-100 rounded transition">Home</a>
+    <a href="about.html" class="block py-2 px-3 text-gray-700 hover:text-blue-600 hover:bg-blue-100 rounded transition">About</a>
+    <a href="feedback.html" class="block py-2 px-3 text-gray-700 hover:text-blue-600 hover:bg-blue-100 rounded transition">Feedback</a>
+    <a href="fees.html" class="block py-2 px-3 text-gray-700 hover:text-blue-600 hover:bg-blue-100 rounded transition">Fees</a>
+    <a href="gallery.html" class="block py-2 px-3 text-gray-700 hover:text-blue-600 hover:bg-blue-100 rounded transition">Gallery</a>
+    <a href="login.html" id="mobileLoginLogoutBtn" class="block py-2 px-3 text-blue-600 font-semibold hover:bg-blue-100 rounded transition">Login</a>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="flex justify-center items-center min-h-screen px-4 py-10">
+  <div class="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl space-y-6 fade-in">
+
+    <!-- Login Form -->
+    <div id="loginForm">
+      <h2 class="text-3xl font-bold text-center mb-6">Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" class="w-full p-3 border rounded-lg mb-4" required />
+      <input type="password" id="loginPassword" placeholder="Password" class="w-full p-3 border rounded-lg mb-4" required />
+      <button onclick="login()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">Login</button>
+      <p class="text-center text-sm mt-4">Don't have an account? <a href="#" onclick="toggleForms()" class="text-blue-500 hover:underline">Register</a></p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerForm" class="hidden">
+      <h2 class="text-3xl font-bold text-center mb-6">Register</h2>
+      <input type="email" id="registerEmail" placeholder="Email" class="w-full p-3 border rounded-lg mb-4" required />
+      <input type="password" id="registerPassword" placeholder="Password" class="w-full p-3 border rounded-lg mb-4" required />
+      <select id="userRole" class="w-full p-3 border rounded-lg mb-4">
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button onclick="register()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">Register</button>
+      <p class="text-center text-sm mt-4">Already have an account? <a href="#" onclick="toggleForms()" class="text-blue-500 hover:underline">Login</a></p>
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white text-center py-4 text-sm">
+  &copy; 2024 HostelConnect. All rights reserved.
+</footer>
+
+<!-- JavaScript -->
+<script>
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const loginLogoutBtn = document.getElementById('loginLogoutBtn');
+  const mobileLoginLogoutBtn = document.getElementById('mobileLoginLogoutBtn');
+
+  menuToggle.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+    menuToggle.classList.toggle('menu-open');
+  });
+
+  function toggleForms() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    loginForm.classList.toggle('hidden');
+    registerForm.classList.toggle('hidden');
+  }
+
+  async function register() {
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value.trim();
+    const role = document.getElementById("userRole").value;
+    if (!email || !password) return alert("Please fill all fields.");
+    if (password.length < 6) return alert("Password must be at least 6 characters.");
+
+    try {
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      await db.collection('users').doc(userCredential.user.uid).set({
+        email, role, createdAt: new Date(), hostelFeePaid: false, gymFeePaid: false,userId:userCredential.user.uid
+      });
+      alert(`Registered successfully as ${role}`);
+      window.location.href = "fees.html";
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+  }
+
+  async function login() {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+    if (!email || !password) return alert("Please fill all fields.");
+
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      const userDoc = await db.collection('users').doc(userCredential.user.uid).get();
+      if (!userDoc.exists) throw new Error('User data not found.');
+      const userData = userDoc.data();
+      alert(`Welcome, ${userData.role}`);
+      window.location.href = "fees.html";
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      loginLogoutBtn.textContent = 'Logout';
+      mobileLoginLogoutBtn.textContent = 'Logout';
+      loginLogoutBtn.onclick = logout;
+      mobileLoginLogoutBtn.onclick = logout;
+    } else {
+      loginLogoutBtn.textContent = 'Login';
+      mobileLoginLogoutBtn.textContent = 'Login';
+      loginLogoutBtn.onclick = () => window.location.href = 'login.html';
+      mobileLoginLogoutBtn.onclick = () => window.location.href = 'login.html';
+    }
+  });
+
+  function logout() {
+    auth.signOut().then(() => {
+      alert('Logged out successfully');
+      window.location.href = 'index.html';
+    }).catch(error => alert('Error logging out: ' + error.message));
+  }
+</script>
+
+</body>
+</html>

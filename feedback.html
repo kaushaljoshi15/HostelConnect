@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feedback - HostelConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxCG9sUtilWw0R55J4Sv6S0-jvFgFoxHQ",
+      authDomain: "hostelconnect-9b797.firebaseapp.com",
+      databaseURL: "https://hostelconnect-9b797-default-rtdb.firebaseio.com",
+      projectId: "hostelconnect-9b797",
+      storageBucket: "hostelconnect-9b797.firebasestorage.app",
+      messagingSenderId: "20703075895",
+      appId: "1:20703075895:web:99ff5ecf72a985ecd9a9b2"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <style>
+    /* Custom Entrance Animation (Dora-style) */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1s ease-out forwards;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .nav-item {
+      position: relative;
+      display: inline-block;
+      color: #4B5563;
+      transition: color 0.3s ease-in-out;
+    }
+
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background-color: #2563eb;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .nav-item:hover {
+      color: #2563eb;
+    }
+
+    .nav-item:hover::after {
+      width: 100%;
+    }
+
+    /* Mobile menu sliding effect */
+    #mobileMenu {
+      transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+    }
+
+    #mobileMenu.open {
+      max-height: 500px;
+      opacity: 1;
+    }
+
+    /* Hamburger rotation */
+    .hamburger-line {
+      transition: all 0.4s ease;
+    }
+
+    #menuButton.open .hamburger-line:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    #menuButton.open .hamburger-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    #menuButton.open .hamburger-line:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-white text-gray-800 transition-all duration-300 ease-in-out">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md sticky top-0 z-50 fade-up">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <a href="index.html" class="flex items-center space-x-3 text-2xl font-bold text-blue-600">
+          <img src="logo2.jpg" alt="HostelConnect Logo" class="w-9 h-9 rounded-full shadow-sm">
+          <span>HostelConnect</span>
+        </a>
+        <div class="hidden md:flex space-x-6">
+          <a href="index.html" class="nav-item">Home</a>
+          <a href="about.html" class="nav-item">About</a>
+          <a href="feedback.html" class="nav-item">Feedback</a>
+          <a href="fees.html" class="nav-item">Fees</a>
+          <a href="gallery.html" class="nav-item">Gallery</a>
+          <a href="login.html" id="authLink" class="nav-item text-blue-600 font-semibold">Login</a>
+        </div>
+        <!-- Mobile Hamburger Button -->
+        <button id="menuButton" class="md:hidden focus:outline-none relative w-8 h-8">
+          <span class="hamburger-line absolute top-2 left-0 w-8 h-1 bg-gray-800"></span>
+          <span class="hamburger-line absolute top-4 left-0 w-8 h-1 bg-gray-800"></span>
+          <span class="hamburger-line absolute top-6 left-0 w-8 h-1 bg-gray-800"></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="bg-white shadow-md p-4 space-y-4 md:hidden">
+    <a href="index.html" class="block text-lg text-gray-800">Home</a>
+    <a href="about.html" class="block text-lg text-gray-800">About</a>
+    <a href="feedback.html" class="block text-lg text-gray-800">Feedback</a>
+    <a href="fees.html" class="block text-lg text-gray-800">Fees</a>
+    <a href="gallery.html" class="block text-lg text-gray-800">Gallery</a>
+    <a href="login.html" class="block text-lg text-blue-600" id="mobileAuthLink">Login</a>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-12 space-y-12 fade-up">
+    <!-- Feedback Form -->
+    <div class="bg-white p-8 rounded-xl shadow-xl transition hover:shadow-2xl duration-500">
+      <h2 class="text-4xl font-bold text-indigo-700 mb-6 text-center">Submit Feedback</h2>
+      <form id="feedbackForm" class="space-y-6">
+        <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+        <input type="email" id="email" placeholder="Your Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+        <textarea id="message" placeholder="Your Message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition shadow-lg font-semibold">
+          Submit
+        </button>
+      </form>
+    </div>
+
+    <!-- Feedback Display -->
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h3 class="text-2xl font-semibold text-indigo-700 mb-4">Feedback Submitted</h3>
+      <div id="feedbackList" class="space-y-4"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-4">
+    <div class="max-w-7xl mx-auto text-center text-white text-sm">
+      <p>&copy; 2024 HostelConnect. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const authLink = document.getElementById('authLink');
+    const mobileAuthLink = document.getElementById('mobileAuthLink');
+
+    menuButton.addEventListener('click', () => {
+      menuButton.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+
+    // Get form element
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackList = document.getElementById('feedbackList');
+
+    feedbackForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      try {
+        await firebase.firestore().collection('feedback').add({
+          name,
+          email,
+          message,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        feedbackForm.reset();
+        alert('Feedback submitted successfully!');
+      } catch (error) {
+        console.error('Error submitting feedback:', error);
+        alert('Error submitting feedback: ' + error.message);
+      }
+    });
+
+    // Load and display feedback
+    function loadFeedback() {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        console.log('No user signed in');
+        return;
+      }
+
+      firebase.firestore().collection('users').doc(user.uid).get()
+        .then((doc) => {
+          if (doc.exists && doc.data().role === 'admin') {
+            firebase.firestore().collection('feedback')
+              .orderBy('timestamp', 'desc')
+              .onSnapshot((snapshot) => {
+                feedbackList.innerHTML = '';
+                snapshot.forEach((doc) => {
+                  const feedback = doc.data();
+                  const date = feedback.timestamp ? feedback.timestamp.toDate().toLocaleString() : 'Date not available';
+                  
+                  const feedbackElement = document.createElement('div');
+                  feedbackElement.className = 'border border-gray-200 p-4 rounded-lg bg-gray-50';
+                  feedbackElement.innerHTML = `
+                    <p class="text-sm text-gray-600"><strong>${feedback.name}</strong> (${feedback.email})</p>
+                    <p class="mt-1 text-gray-800">${feedback.message}</p>
+                    <p class="mt-2 text-xs text-gray-400">${date}</p>
+                  `;
+                  feedbackList.appendChild(feedbackElement);
+                });
+              }, (error) => {
+                console.error('Error loading feedback:', error);
+              });
+          } else {
+            feedbackList.innerHTML = '<p class="text-gray-600">Only administrators can view feedback.</p>';
+          }
+        })
+        .catch((error) => {
+          console.error('Error checking user role:', error);
+        });
+    }
+
+    function setLogoutLinks() {
+      if (authLink) {
+        authLink.textContent = 'Logout';
+        authLink.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => {
+            window.location.href = 'login.html';
+          });
+        };
+        authLink.href = '#';
+      }
+      if (mobileAuthLink) {
+        mobileAuthLink.textContent = 'Logout';
+        mobileAuthLink.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => {
+            window.location.href = 'login.html';
+          });
+        };
+        mobileAuthLink.href = '#';
+      }
+    }
+
+    function setLoginLinks() {
+      if (authLink) {
+        authLink.textContent = 'Login';
+        authLink.onclick = null;
+        authLink.href = 'login.html';
+      }
+      if (mobileAuthLink) {
+        mobileAuthLink.textContent = 'Login';
+        mobileAuthLink.onclick = null;
+        mobileAuthLink.href = 'login.html';
+      }
+    }
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setLogoutLinks();
+        loadFeedback();
+      } else {
+        setLoginLinks();
+        feedbackList.innerHTML = '<p class="text-gray-600">Please sign in to view feedback.</p>';
+      }
+    });
+  </script>
+</body>
+</html>

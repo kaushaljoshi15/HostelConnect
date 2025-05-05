@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leave Requests - HostelConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(.39,.575,.565,1) both; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-in { animation: slideIn 0.7s cubic-bezier(.39,.575,.565,1) both; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-slate-100 to-gray-200 min-h-screen text-gray-800">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 h-screen bg-white shadow-2xl p-6 flex flex-col justify-between sticky top-0 z-10">
+      <div>
+        <div class="flex items-center space-x-3 mb-12">
+          <img src="logo2.jpg" alt="Logo" class="w-10 h-10 rounded-full shadow-lg">
+          <span class="text-2xl font-bold text-blue-600">HostelConnect</span>
+        </div>
+        <nav class="space-y-3 text-base">
+          <a href="dashboard.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+            <span class="material-icons mr-2">dashboard</span> Dashboard
+          </a>
+          <a href="smart-room-allocation.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+            <span class="material-icons mr-2">meeting_room</span> Smart Room Allocation
+          </a>
+          <a href="check-in-out.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+            <span class="material-icons mr-2">login</span> Check-in / Out
+          </a>
+          <a href="complaint.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+            <span class="material-icons mr-2">report_problem</span> Complaints / Messenger
+          </a>
+          <a href="leave.html" class="flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-semibold transition hover:shadow hover:bg-blue-200">
+            <span class="material-icons mr-2">event</span> Leave Requests
+          </a>
+          <a href="emergency.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+            <span class="material-icons mr-2">notifications_active</span> Emergency Alerts
+          </a>
+          <a href="#" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+            <span class="material-icons mr-2">chat</span> Forum / Chat
+          </a>
+        </nav>
+      </div>
+      <a id="authLink" href="login.html" class="text-blue-600 font-medium mt-6 hover:text-blue-800 transition">Login</a>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 p-10 space-y-8">
+      <div id="studentFormSection" class="fade-in-up hidden">
+        <h1 class="text-3xl font-bold text-blue-700 mb-6">Leave Request</h1>
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 max-w-xl mx-auto slide-in">
+          <h2 class="text-xl font-semibold mb-4 flex items-center"><span class="material-icons mr-2 text-green-500">event</span> Submit Leave Request</h2>
+          <form id="leaveForm" class="space-y-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-1">Reason</label>
+              <textarea id="reason" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400" placeholder="Reason for leave..."></textarea>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <label class="block text-gray-700 font-medium mb-1">From Date</label>
+                <input type="date" id="fromDate" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+              </div>
+              <div class="flex-1">
+                <label class="block text-gray-700 font-medium mb-1">To Date</label>
+                <input type="date" id="toDate" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400" />
+              </div>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">Submit Request</button>
+          </form>
+          <div id="formMsg" class="mt-3 text-center text-sm"></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-lg p-8 slide-in">
+        <h2 class="text-xl font-semibold mb-4 flex items-center"><span class="material-icons mr-2 text-blue-500">list_alt</span> Leave Requests</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left border rounded-xl">
+            <thead>
+              <tr class="bg-blue-50">
+                <th class="py-2 px-4">Student Email</th>
+                <th class="py-2 px-4">Reason</th>
+                <th class="py-2 px-4">From</th>
+                <th class="py-2 px-4">To</th>
+                <th class="py-2 px-4">Status</th>
+                <th class="py-2 px-4">Action</th>
+              </tr>
+            </thead>
+            <tbody id="leaveTable">
+              <!-- Rows will be injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxCG9sUtilWw0R55J4Sv6S0-jvFgFoxHQ",
+      authDomain: "hostelconnect-9b797.firebaseapp.com",
+      projectId: "hostelconnect-9b797",
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Auth logic
+    const authLink = document.getElementById('authLink');
+    function setLogoutLinks() {
+      authLink.textContent = 'Logout';
+      authLink.href = '#';
+      authLink.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => {
+          window.location.href = 'login.html';
+        });
+      };
+    }
+    function setLoginLinks() {
+      authLink.textContent = 'Login';
+      authLink.href = 'login.html';
+      authLink.onclick = null;
+    }
+    let currentUserEmail = null;
+    let currentUserRole = null;
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        setLogoutLinks();
+        currentUserEmail = user.email;
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        currentUserRole = userDoc.data() ? userDoc.data().role : null;
+        if (currentUserRole !== 'admin') {
+          document.getElementById('studentFormSection').classList.remove('hidden');
+        } else {
+          document.getElementById('studentFormSection').classList.add('hidden');
+        }
+        loadLeaveRequests();
+      } else {
+        setLoginLinks();
+        document.getElementById('studentFormSection').classList.add('hidden');
+        document.getElementById('leaveTable').innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-400">Please login to view leave requests.</td></tr>';
+      }
+    });
+
+    // Handle leave request form (students only)
+    const leaveForm = document.getElementById('leaveForm');
+    const formMsg = document.getElementById('formMsg');
+    if (leaveForm) {
+      leaveForm.onsubmit = async (e) => {
+        e.preventDefault();
+        formMsg.textContent = '';
+        const reason = document.getElementById('reason').value.trim();
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+        if (!reason || !fromDate || !toDate) {
+          formMsg.textContent = 'Please fill all fields.';
+          formMsg.className = 'text-red-500 mt-3 text-center text-sm';
+          return;
+        }
+        try {
+          await db.collection('leave_requests').add({
+            email: currentUserEmail,
+            reason,
+            fromDate,
+            toDate,
+            status: 'pending',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          formMsg.textContent = 'Leave request submitted!';
+          formMsg.className = 'text-green-600 mt-3 text-center text-sm';
+          leaveForm.reset();
+        } catch (err) {
+          formMsg.textContent = 'Error: ' + err.message;
+          formMsg.className = 'text-red-500 mt-3 text-center text-sm';
+        }
+      };
+    }
+
+    // Load leave requests
+    function loadLeaveRequests() {
+      db.collection('leave_requests').orderBy('timestamp', 'desc')
+        .onSnapshot(snapshot => {
+          const table = document.getElementById('leaveTable');
+          table.innerHTML = '';
+          if (snapshot.empty) {
+            table.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-400">No leave requests yet.</td></tr>';
+            return;
+          }
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const isMine = data.email === currentUserEmail;
+            let actionCell = '';
+            if (currentUserRole === 'admin' && data.status === 'pending') {
+              actionCell = `
+                <button onclick="approveLeave('${doc.id}')" class="bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-green-600">Approve</button>
+                <button onclick="denyLeave('${doc.id}')" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Deny</button>
+              `;
+            } else {
+              actionCell = '-';
+            }
+            // Students see only their requests
+            if (currentUserRole === 'admin' || isMine) {
+              table.innerHTML += `
+                <tr class="hover:bg-blue-50 transition">
+                  <td class="py-2 px-4">${data.email}</td>
+                  <td class="py-2 px-4">${data.reason}</td>
+                  <td class="py-2 px-4">${data.fromDate}</td>
+                  <td class="py-2 px-4">${data.toDate}</td>
+                  <td class="py-2 px-4 capitalize ${data.status === 'approved' ? 'text-green-600' : data.status === 'denied' ? 'text-red-600' : 'text-yellow-600'}">${data.status}</td>
+                  <td class="py-2 px-4">${actionCell}</td>
+                </tr>
+              `;
+            }
+          });
+        });
+    }
+
+    // Admin actions
+    window.approveLeave = async function(id) {
+      await db.collection('leave_requests').doc(id).update({ status: 'approved' });
+    }
+    window.denyLeave = async function(id) {
+      await db.collection('leave_requests').doc(id).update({ status: 'denied' });
+    }
+  </script>
+</body>
+</html> 
