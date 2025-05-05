@@ -64,11 +64,6 @@
 </head>
 
 <body class="bg-gradient-to-r from-slate-100 to-gray-200 min-h-screen text-gray-800">
-  <audio id="fireSound" src="medical.mp3"></audio>
-  <audio id="medicalSound" src="medical.mp3"></audio>
-  <audio id="securitySound" src="security.mp3"></audio>
-  <audio id="otherSound" src="other.mp3"></audio>
-
   <div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-64 h-screen bg-white shadow-2xl p-6 flex flex-col justify-between sticky top-0 z-10">
@@ -168,12 +163,6 @@
 
     const authLink = document.getElementById('authLink');
     const popupContainer = document.getElementById('popupContainer');
-    const sounds = {
-      Fire: document.getElementById("fireSound"),
-      Medical: document.getElementById("medicalSound"),
-      Security: document.getElementById("securitySound"),
-      Other: document.getElementById("otherSound")
-    };
 
     function loadAlerts(withLiveUpdates = false) {
       let lastAlertTime = 0;
@@ -187,7 +176,6 @@
             if (time > lastAlertTime) {
               lastAlertTime = time;
               if (withLiveUpdates) {
-                sounds[data.type]?.play(); // ✅ PLAY SOUND
                 showAlertPopup(data.type); // ✅ Show popup
               }
             }
@@ -258,7 +246,7 @@
       }
     }
 
-    // Admin loads alerts + sound + popup
+    // Admin loads alerts + popup
     function loadAlerts(withLiveUpdates = false) {
       let lastAlertTime = 0;
       db.collection('emergency_alerts').orderBy('timestamp', 'desc').limit(30)
@@ -278,7 +266,6 @@
             if (time > lastAlertTime) {
               lastAlertTime = time;
               if (withLiveUpdates) {
-                sounds[data.type]?.play();
                 showAlertPopup(data.type);
               }
             }
@@ -298,9 +285,6 @@
               lastAlertTime = time;
               // Show popup/banner
               showEmergencyBanner(data.type, data.email);
-              // Play sound
-              const audio = new Audio('emergency.mp3');
-              audio.play();
             }
           });
         });

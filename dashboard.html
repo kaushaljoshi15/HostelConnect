@@ -198,18 +198,22 @@
     }
 
     // --- Emergency Alert Listener for all pages ---
-    let lastAlertTime = 0;
     function listenForEmergencyAlerts() {
       db.collection('emergency_alerts').orderBy('timestamp', 'desc').limit(1)
         .onSnapshot(snapshot => {
           snapshot.forEach(doc => {
             const data = doc.data();
             const time = data.timestamp?.seconds || 0;
-            if (time > lastAlertTime) {
-              lastAlertTime = time;
+            const alertId = doc.id;
+            const lastSeen = localStorage.getItem('lastSeenEmergencyAlert') || '';
+            const lastSeenParts = lastSeen.split(':');
+            const lastSeenId = lastSeenParts[0] || '';
+            const lastSeenTime = parseInt(lastSeenParts[1] || '0', 10);
+
+            // Only play if this alert is new (by ID and timestamp is valid)
+            if (alertId !== lastSeenId && time > 0) {
+              localStorage.setItem('lastSeenEmergencyAlert', `${alertId}:${time}`);
               showEmergencyBanner(data.type, data.email);
-              const audio = new Audio('medical.mp3');
-              audio.play();
             }
           });
         });
