@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="logo2.jpg">
+
   <title>Emergency Alerts - HostelConnect</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -42,7 +44,6 @@
       100% {
         box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
       }
-
       50% {
         box-shadow: 0 0 0 12px rgba(239, 68, 68, 0.1);
       }
@@ -76,8 +77,7 @@
           <a href="dashboard.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
             <span class="material-icons mr-2">dashboard</span> Dashboard
           </a>
-          <a href="smart-room-allocation.html"
-            class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+          <a href="smart-room-allocation.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
             <span class="material-icons mr-2">meeting_room</span> Smart Room Allocation
           </a>
           <a href="check-in-out.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
@@ -89,9 +89,9 @@
           <a href="leave.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-50 transition">
             <span class="material-icons mr-2">event</span> Leave Requests
           </a>
-          <a href="emergency.html"
-            class="flex items-center px-4 py-2 bg-pink-100 text-pink-700 rounded-lg font-semibold transition hover:shadow hover:bg-pink-200">
-            <span class="material-icons mr-2">notifications_active</span> Emergency Alerts </a>
+          <a href="emergency.html" class="flex items-center px-4 py-2 bg-pink-100 text-pink-700 rounded-lg font-semibold transition hover:shadow hover:bg-pink-200">
+            <span class="material-icons mr-2">notifications_active</span> Emergency Alerts
+          </a>
         </nav>
       </div>
       <a id="authLink" href="login.html" class="text-blue-600 font-medium mt-6 hover:text-blue-800 transition">Login</a>
@@ -107,20 +107,16 @@
         <!-- Student UI -->
         <div id="studentAlertSection" class="mb-8 hidden">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-            <button onclick="sendAlert('Fire')"
-              class="pulse bg-red-600 text-white rounded-2xl py-8 shadow-lg hover:bg-red-700 transition text-xl font-bold flex flex-col items-center">
+            <button onclick="sendAlert('Fire')" class="pulse bg-red-600 text-white rounded-2xl py-8 shadow-lg hover:bg-red-700 transition text-xl font-bold flex flex-col items-center">
               <span class="material-icons text-4xl mb-2">local_fire_department</span> Fire Emergency
             </button>
-            <button onclick="sendAlert('Medical')"
-              class="pulse bg-yellow-500 text-white rounded-2xl py-8 shadow-lg hover:bg-yellow-600 transition text-xl font-bold flex flex-col items-center">
+            <button onclick="sendAlert('Medical')" class="pulse bg-yellow-500 text-white rounded-2xl py-8 shadow-lg hover:bg-yellow-600 transition text-xl font-bold flex flex-col items-center">
               <span class="material-icons text-4xl mb-2">medical_services</span> Medical Emergency
             </button>
-            <button onclick="sendAlert('Security')"
-              class="pulse bg-blue-600 text-white rounded-2xl py-8 shadow-lg hover:bg-blue-700 transition text-xl font-bold flex flex-col items-center">
+            <button onclick="sendAlert('Security')" class="pulse bg-blue-600 text-white rounded-2xl py-8 shadow-lg hover:bg-blue-700 transition text-xl font-bold flex flex-col items-center">
               <span class="material-icons text-4xl mb-2">security</span> Security Threat
             </button>
-            <button onclick="sendAlert('Other')"
-              class="pulse bg-gray-600 text-white rounded-2xl py-8 shadow-lg hover:bg-gray-700 transition text-xl font-bold flex flex-col items-center">
+            <button onclick="sendAlert('Other')" class="pulse bg-gray-600 text-white rounded-2xl py-8 shadow-lg hover:bg-gray-700 transition text-xl font-bold flex flex-col items-center">
               <span class="material-icons text-4xl mb-2">error_outline</span> Other Emergency
             </button>
           </div>
@@ -149,14 +145,20 @@
     </main>
   </div>
 
-  <!-- Popup Container -->
+  <!-- Popup container -->
   <div id="popupContainer"></div>
+
+  <!-- Audio -->
+  <audio id="fireSound" src="fire.mp3"></audio>
+  <audio id="medicalSound" src="medical.mp3"></audio>
+  <audio id="securitySound" src="security.mp3"></audio>
+  <audio id="otherSound" src="other.mp3"></audio>
 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDxCG9sUtilWw0R55J4Sv6S0-jvFgFoxHQ",
       authDomain: "hostelconnect-9b797.firebaseapp.com",
-      projectId: "hostelconnect-9b797",
+      projectId: "hostelconnect-9b797"
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -164,33 +166,26 @@
     const authLink = document.getElementById('authLink');
     const popupContainer = document.getElementById('popupContainer');
 
-    function loadAlerts(withLiveUpdates = false) {
-      let lastAlertTime = 0;
-      db.collection('emergency_alerts').orderBy('timestamp', 'desc').limit(30)
-        .onSnapshot(snapshot => {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const time = data.timestamp?.seconds || 0;
-
-            // Play sound only for new alerts
-            if (time > lastAlertTime) {
-              lastAlertTime = time;
-              if (withLiveUpdates) {
-                showAlertPopup(data.type); // ✅ Show popup
-              }
-            }
-          });
-        });
-    }
-
-
     function showAlertPopup(type) {
-      const msg = `🚨 ${type} Alert triggered by a student!`;
       const div = document.createElement("div");
       div.className = "alert-popup";
-      div.textContent = msg;
+      div.textContent = `🚨 ${type} Alert triggered!`;
       popupContainer.appendChild(div);
       setTimeout(() => div.remove(), 5000);
+    }
+
+    function playSoundOnce(type, time) {
+      const lastPlayed = localStorage.getItem('lastAlertTime');
+      if (!lastPlayed || parseInt(lastPlayed) < time) {
+        localStorage.setItem('lastAlertTime', time);
+        const soundMap = {
+          Fire: document.getElementById('fireSound'),
+          Medical: document.getElementById('medicalSound'),
+          Security: document.getElementById('securitySound'),
+          Other: document.getElementById('otherSound')
+        };
+        soundMap[type]?.play();
+      }
     }
 
     function setLogoutLinks() {
@@ -209,26 +204,44 @@
     }
 
     let currentUserEmail = null;
-    let currentUserRole = null;
 
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         setLogoutLinks();
         currentUserEmail = user.email;
         const doc = await db.collection('users').doc(user.uid).get();
-        currentUserRole = doc.data()?.role;
-        if (currentUserRole === 'admin' || currentUserRole === 'warden') {
+        const role = doc.data()?.role;
+
+        if (role === 'admin' || role === 'warden') {
           document.getElementById('adminAlertSection').classList.remove('hidden');
-          loadAlerts(true); // With real-time listener
         } else {
           document.getElementById('studentAlertSection').classList.remove('hidden');
         }
+
+        db.collection('emergency_alerts').orderBy('timestamp', 'desc').limit(30)
+          .onSnapshot(snapshot => {
+            const table = document.getElementById("alertsTable");
+            if (table) table.innerHTML = '';
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              const time = data.timestamp?.seconds || 0;
+              const row = `
+                <tr class="hover:bg-pink-50 transition">
+                  <td class="py-2 px-4 font-bold">${data.type}</td>
+                  <td class="py-2 px-4">${data.email}</td>
+                  <td class="py-2 px-4">${new Date(time * 1000).toLocaleString()}</td>
+                </tr>
+              `;
+              if (table) table.innerHTML += row;
+              playSoundOnce(data.type, time);
+              showAlertPopup(data.type);
+            });
+          });
       } else {
         setLoginLinks();
       }
     });
 
-    // Student sends alert
     async function sendAlert(type) {
       const alertMsg = document.getElementById("alertMsg");
       alertMsg.textContent = '';
@@ -245,61 +258,6 @@
         alertMsg.className = 'text-red-600 text-center mt-2';
       }
     }
-
-    // Admin loads alerts + popup
-    function loadAlerts(withLiveUpdates = false) {
-      let lastAlertTime = 0;
-      db.collection('emergency_alerts').orderBy('timestamp', 'desc').limit(30)
-        .onSnapshot(snapshot => {
-          const table = document.getElementById("alertsTable");
-          table.innerHTML = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const time = data.timestamp?.seconds || 0;
-            table.innerHTML += `
-              <tr class="hover:bg-pink-50 transition">
-                <td class="py-2 px-4 font-bold">${data.type}</td>
-                <td class="py-2 px-4">${data.email}</td>
-                <td class="py-2 px-4">${new Date(time * 1000).toLocaleString()}</td>
-              </tr>
-            `;
-            if (time > lastAlertTime) {
-              lastAlertTime = time;
-              if (withLiveUpdates) {
-                showAlertPopup(data.type);
-              }
-            }
-          });
-        });
-    }
-    
-    let lastAlertTime = 0;
-
-    function listenForEmergencyAlerts() {
-      db.collection('emergency_alerts').orderBy('timestamp', 'desc').limit(1)
-        .onSnapshot(snapshot => {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const time = data.timestamp?.seconds || 0;
-            if (time > lastAlertTime) {
-              lastAlertTime = time;
-              // Show popup/banner
-              showEmergencyBanner(data.type, data.email);
-            }
-          });
-        });
-    }
-
-    function showEmergencyBanner(type, email) {
-      // Create a banner or popup in your UI
-      alert(`🚨 ${type} Emergency reported by ${email}!`);
-    }
-
-    // Call this function after user logs in
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) listenForEmergencyAlerts();
-    });
   </script>
 </body>
-
 </html>

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="logo2.jpg">
   <title>Fees Payment - HostelConnect</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     .nav-item {
       position: relative;
@@ -96,8 +96,7 @@
     <input type="text" id="hostelName" placeholder="Full Name" class="w-full px-4 py-2 border rounded-md" />
     <input type="text" id="hostelEnroll" placeholder="Enrollment No." class="w-full px-4 py-2 border rounded-md" />
     <input type="email" id="hostelEmail" placeholder="Email ID" class="w-full px-4 py-2 border rounded-md" />
-    <input type="number" id="hostelAmount" placeholder="Amount (INR)" class="w-full px-4 py-2 border rounded-md" />
-    <button onclick="payFee('Hostel', 'hostelName', 'hostelEnroll', 'hostelEmail', 'hostelAmount')" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">Pay Hostel Fee</button>
+    <button onclick="window.open('https://www.onlinesbi.sbi/sbicollect/icollecthome.htm', '_blank')" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">Pay Hostel Fee</button>
   </div>
 </section>
 
@@ -107,8 +106,7 @@
     <input type="text" id="gymName" placeholder="Full Name" class="w-full px-4 py-2 border rounded-md" />
     <input type="text" id="gymEnroll" placeholder="Enrollment No." class="w-full px-4 py-2 border rounded-md" />
     <input type="email" id="gymEmail" placeholder="Email ID" class="w-full px-4 py-2 border rounded-md" />
-    <input type="number" id="gymAmount" placeholder="Amount (INR)" class="w-full px-4 py-2 border rounded-md" />
-    <button onclick="payFee('Gym', 'gymName', 'gymEnroll', 'gymEmail', 'gymAmount')" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">Pay Gym Fee</button>
+    <button onclick="window.open('https://www.onlinesbi.sbi/sbicollect/icollecthome.htm', '_blank')" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition" >Pay Gym Fee</button>
   </div>
 </section>
 
@@ -198,37 +196,6 @@
     } else if (type === "gym") {
       document.getElementById("gymForm").classList.remove("hidden");
     }
-  }
-
-  function payFee(feeType, nameId, enrollId, emailId, amountId) {
-    const name = document.getElementById(nameId).value.trim();
-    const enroll = document.getElementById(enrollId).value.trim();
-    const email = document.getElementById(emailId).value.trim();
-    const amount = parseInt(document.getElementById(amountId).value.trim());
-
-    if (!name || !enroll || !email || !amount) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    const options = {
-      key: "rzp_test_1234567890abcdef",
-      amount: amount * 100,
-      currency: "INR",
-      name: "HostelConnect",
-      description: `${feeType} Fee Payment`,
-      handler: function () {
-        alert("✅ Payment Successful! Thank you.");
-      },
-      prefill: { name, email },
-      notes: {
-        enrollment: enroll,
-        feeType: feeType
-      }
-    };
-
-    const payment = new Razorpay(options);
-    payment.open();
   }
 </script>
 
